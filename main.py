@@ -11,7 +11,7 @@ def removeEmpty(listWithEmpty:list):
 def writeList(path2file:str, objs:list):
     f = open(path2file, "w", newline='', encoding='utf-8')
     for obj in objs:
-        f.write("\t%s\n" % obj)
+        f.write(f"{obj}\n")
     f.close()    
 
 def writeNestedList(path2file:str, objs:list):
@@ -68,84 +68,66 @@ def printLocksForPicks(locksForPicks:list):
         for i, pick in enumerate(lock):
             print(f"{i+1} : {pick}")
         print("\n\n")
-
-def checkCombination(combination:list, lock:list):
-    mergedCombination = []
-    for pick in combination:
-        mergedCombination = mergedCombination + pick
-    
-    print(mergedCombination)
-    if len(set(mergedCombination)) != len(mergedCombination):
-        return False
-    elif set(mergedCombination) != set(lock):
-        return False
-    return True
-
+        
 def powerSet(s:list):
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s)+1)))
 
-def combineLocksForPicks(locksForPicks:list):
-    combinations = []
-    for lock in locksForPicks:
-        for i, pick in enumerate(lock):
-            if pick == []:
-                lock.remove(pick)
-            elif len(pick) == 1:
-                continue
-            else:
-                continue
-        combinations.append(powerSet(lock))
-    
-    filteredComb = []
+def fixPicks(picks:list):
+    newFormat = []
+    for p, pick in enumerate(picks):
+        newFormat.append([p+1, pick])
+    return newFormat
 
-    for lock in combinations:
-        filteredComb.append([])
-        for comb in lock:
-            if comb != ():
-                filteredComb[-1].append(list(comb))
-    return filteredComb
+def combinePicks(picks:list):
+    powerset = powerSet(picks)
+    listSet = []
+    for sSet in powerset:
+        listSet.append(list(sSet))
+    return listSet
 
-def fixMultipleRotations(combinations:list):
-    isChanged = True
-    while isChanged:
-        isChanged = False
-        print("DÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\nDÖN BABA DÖNELİM\n")
-        for l, lock in enumerate(combinations):
-            for c, combination in enumerate(lock):
-                print(len(lock))
-                for p, pick in enumerate(combination):
-                    if len(pick) > 1:
-                        for r, rotation in enumerate(pick):
-                            lock.append(combination[:p] + [[rotation]] + combination[p+1:])
-                            isChanged = True
-                        try:
-                            lock.remove(combination)
-                        except:
-                            pass
-    return combinations
+def countCombTicks(comb:list):
+    if len(comb) == 0:
+        return -1
+    tickCount = 0
+    for pick in comb:
+            tickCount += len(pick[1])
+    return tickCount
 
-def filterCombinations(locks:list, combinations:list):
-    validCombinations = []
+def filterCombinations(combs:list, locks:list):
+    validCombs = []
     for lock in locks:
-        lockSet = set(lock)
-        validCombinations.append([])
-        for l, cLock in enumerate(combinations):
-            for c, combination in enumerate(cLock):
-                tickComb = []
-                for pick in combination:
-                    for tick in pick[0][1]:
-                        tickComb.append(tick)
-                if len(set(tickComb)) != len(tickComb):
-                    continue
-                elif set(tickComb) != set(lock):
-                    continue
-                else:
-                    validCombinations[-1].append(combination)
-    return validCombinations
-                        
-def combineLockSolutions(filteredCombinations:list):
-    return itertools.product(filteredCombinations[:])
+        validCombs.append([])
+        for comb in combs:
+            if len(lock) == countCombTicks(comb):
+                validCombs[-1].append(comb)
+    return validCombs
 
+def cartesianProduct(validCombs:list):
+    product = list(itertools.product(*validCombs))
+    for i, p in enumerate(product):
+        product[i] = list(p)
+    return product
+
+def filterCartesian(cartesian:list, locks:list):
+    filtered = []
+    for product in cartesian:
+        usedPicks = []
+        invalidProduct = False
+        for l, lock in enumerate(product):
+            for pick in lock:
+                if pick[0] in usedPicks:
+                    invalidProduct = True
+                    break
+                elif matchPickToLock(pick[1], locks[l]) == []:
+                    invalidProduct = True
+                    break
+                else:
+                    usedPicks.append(pick[0])
+            if invalidProduct:
+                break
+        if not invalidProduct:
+            filtered.append(product)                    
+    return filtered
 
 def main():
     if True:
@@ -215,30 +197,54 @@ def main():
             [0,8,12,22,24,30]
         ]
 
+    customPicks = [
+        [2,14],
+        [10,12,24],
+        [16,26],
+        [2,18,28],
+        [2,14,18,22],
+        [2,4,12,20],
+        [4,8,22],
+        [10,24],
+        [0,4,26],
+        [6,10,26],
+        [4,20,26],
+        [4,6,18]
+    ]
+
+    customLocks = [
+        [2,4,14,18,22,24],
+        [2,4,12,16,30],
+        [4,6,12,16,18,20,28],
+        [0,2,6,16,18,22,30]
+    ]
+
+    picks = customPicks
+    locks = customLocks
+
+    picks = fixPicks(picks)
+
+    combinedPicks = combinePicks(picks)
+
+    writeList("combinePicks.txt", combinedPicks)
+
+    lengths = []
+    for comb in combinedPicks:
+        lengths.append(f"length : {countCombTicks(comb)}\ncomb   : {comb}\n\n")
+    
+    writeList("lengths.txt", lengths)
+
+    validCombs = filterCombinations(combinedPicks, locks)
+
+    writeList("validCombs.txt", validCombs)
+
+    cartesian = cartesianProduct(validCombs)
+    writeList("cartesian.txt", cartesian)
+
+    filtered = filterCartesian(cartesian, locks)
+    writeList("filtered.txt", filtered)
 
 
-    picks = expertPicks
-    locks = expertLocks
-
-    l4p = findLocksForPicks(picks, locks)
-    writeList("locksForPicks.txt", l4p)
-    print("Locks for picks done")
-
-    cl4p = combineLocksForPicks(l4p)
-    writeNestedList("combineLocksForPicks.txt", cl4p)
-    print("Combine locks for picks done")
-
-    rotations = fixMultipleRotations(cl4p)
-    writeList("rotations.txt", rotations)
-    print("Fix multiple rotations done")
-
-    filteredCombinations = filterCombinations(locks, rotations)
-    writeList("filteredCombinations.txt", filteredCombinations)
-    print("Filter combinations done")
-
-    solutions = combineLockSolutions(filteredCombinations)
-    writeList("solutions.txt", solutions)
-    print("Combine solutions done")
 
 if __name__ == "__main__":
     t_start = time.time()
