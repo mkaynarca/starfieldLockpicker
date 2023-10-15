@@ -13,4 +13,8 @@ Solve function gives all the solutions for given locks and picks. (~10 seconds f
 
 Just tinker with it, you'll figure it out. Feel free to send PRs.
 
+https://bb-dev.itch.io/starfield-digipick-simulator - Useful site to test, thanks to [BBelk](https://github.com/BBelk)
+
 TODO : Process image from screenshot to automate input stage
+
+You may also like this [Fallout terminal hacker](https://github.com/mkaynarca/fallout_puzzle_solver)
