@@ -45,39 +45,6 @@ def newMatchPickToLock(lock:list, pick:list):
         if all(tick in lock for tick in newPick[1]):
             solution.append(newPick)
     return solution
-
-        
-def findPicksForLocks(picks:list, locks:list):
-    picksForLocks = []
-    for lock in locks:
-        picksForLocks.append([])
-        for pick in picks:
-            picksForLocks[-1].append(matchPickToLock(pick, lock))
-    return picksForLocks
-
-def findLocksForPicks(picks:list, locks:list):
-    picksForLocks = findPicksForLocks(picks, locks)
-
-    locksForPicks = []
-    for i,lock in enumerate(locks):
-        locksForPicks.append([])
-        for j, pick in enumerate(picks):
-            locksForPicks[-1].append([])
-            for k, solution in enumerate(picksForLocks[i][j]):
-                if solution != []:
-                    locksForPicks[-1][-1].append([j,rotatePick(picks[j], solution)])
-                else:
-                    locksForPicks[-1][-1].append([])
-
-    for lock in locksForPicks:
-        lock = removeEmpty(lock)
-    return locksForPicks
-            
-def printLocksForPicks(locksForPicks:list):
-    for lock in locksForPicks:
-        for i, pick in enumerate(lock):
-            print(f"{i+1} : {pick}")
-        print("\n\n")
         
 def powerSet(s:list):
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s)+1)))
