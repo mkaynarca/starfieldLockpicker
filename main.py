@@ -36,6 +36,16 @@ def matchPickToLock(pick:list, lock:list):
         if all(tick in lock for tick in newPick):
             solution.append(newPick[0] - pick[0])
     return solution
+
+def newMatchPickToLock(lock:list, pick:list):
+    solution = []
+    for hole in lock:
+        diff = hole - pick[1][0]
+        newPick = [pick[0], rotatePick(pick[1], diff)]
+        if all(tick in lock for tick in newPick[1]):
+            solution.append(newPick)
+    return solution
+
         
 def findPicksForLocks(picks:list, locks:list):
     picksForLocks = []
@@ -130,9 +140,45 @@ def filterCartesian(cartesian:list, locks:list):
     return filtered
 
 def checkProduct(products:list, locks:list):
+    validProducts = []
     for product in products:
+        invalidProduct = False
+        validProducts.append([])
         for l, lock in enumerate(product):
-            for pick in lock:
+            rotation = checkCombination(lock, locks[l])
+            if rotation == []:
+                invalidProduct = True
+                break
+            else:
+                validProducts[-1].append(rotation)
+        if invalidProduct:
+            validProducts.pop(-1)
+
+    return validProducts
+
+def checkCombination(combination:list, lock:list):
+    rotations = []
+    for pick in combination:
+        rotations.append(newMatchPickToLock(lock, pick))
+    
+    cartesianRots = cartesianProduct(rotations)
+    for rotation in cartesianRots:
+        ticks = []
+        invalidRotation = False
+        for pick in rotation:
+            for tick in pick[1]:
+                if tick not in ticks:
+                    ticks.append(tick)
+                else:
+                    invalidRotation = True
+                    break
+            if invalidRotation:
+                break
+        if all(tick in ticks for tick in lock):
+            return rotation
+    return []
+
+
                 
 
 def main():
@@ -249,6 +295,9 @@ def main():
 
     filtered = filterCartesian(cartesian, locks)
     writeList("filtered.txt", filtered)
+
+    validProducts = checkProduct(filtered, locks)
+    writeList("validProducts.txt", validProducts)
 
 
 
