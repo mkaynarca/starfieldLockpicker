@@ -145,8 +145,22 @@ def checkCombination(combination:list, lock:list):
             return rotation
     return []
 
+def solve(locks:list, picks:list):
+    picks = fixPicks(picks)
+    combinedPicks = combinePicks(picks)
+    validCombs = filterCombinations(combinedPicks, locks)
+    cartesian = cartesianProduct(validCombs)
+    filtered = filterCartesian(cartesian, locks)
+    validProducts = checkProduct(filtered, locks)
+    return validProducts  
 
-                
+def printSolution(solutions:list, locks:list):
+    for i, solution in enumerate(solutions):
+        print(f"Solution {i+1}:")
+        for l, lock in enumerate(solution):
+            print(f"\tLock {l:>2} : {locks[l]}")
+            for pick in lock:
+                print(f"\t\tPick {pick[0]:>2} : {pick[1]}")
 
 def main():
     if True:
@@ -238,35 +252,21 @@ def main():
         [0,2,6,16,18,22,30]
     ]
 
-    picks = customPicks
-    locks = customLocks
+    testBench = [[novicePicks, noviceLocks], [advancedPicks, advancedLocks], [expertPicks, expertLocks], [masterPicks, masterLocks]]
+    difficulties = ["Novice", "Advanced", "Expert", "Master"]
 
-    picks = fixPicks(picks)
+    print("TestBench Results:")
+    for i, test in enumerate(testBench):
+        t_start = time.time()
+        picks = test[0]
+        locks = test[1]
+        solutions = solve(locks, picks)
+        t_end = time.time()
+        print(f"\tDifficulty: {difficulties[i]}")
+        print(f"\tTime taken: {t_end - t_start} s\n")
 
-    combinedPicks = combinePicks(picks)
-
-    writeList("combinePicks.txt", combinedPicks)
-
-    lengths = []
-    for comb in combinedPicks:
-        lengths.append(f"length : {countCombTicks(comb)}\ncomb   : {comb}\n\n")
-    
-    writeList("lengths.txt", lengths)
-
-    validCombs = filterCombinations(combinedPicks, locks)
-
-    writeList("validCombs.txt", validCombs)
-
-    cartesian = cartesianProduct(validCombs)
-    writeList("cartesian.txt", cartesian)
-
-    filtered = filterCartesian(cartesian, locks)
-    writeList("filtered.txt", filtered)
-
-    validProducts = checkProduct(filtered, locks)
-    writeList("validProducts.txt", validProducts)
-
-
+    printSolution(solutions, locks)
+        
 
 if __name__ == "__main__":
     t_start = time.time()
