@@ -129,6 +129,12 @@ def filterCartesian(cartesian:list, locks:list):
             filtered.append(product)                    
     return filtered
 
+def checkProduct(products:list, locks:list):
+    for product in products:
+        for l, lock in enumerate(product):
+            for pick in lock:
+                
+
 def main():
     if True:
         novicePicks = [
