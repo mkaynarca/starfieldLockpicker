@@ -106,7 +106,7 @@ def filterCartesian(cartesian:list, locks:list):
             filtered.append(product)                    
     return filtered
 
-def checkProduct(products:list, locks:list):
+def checkProduct(products:list, locks:list, justGiveTheDamnSolution:bool = False):
     validProducts = []
     for product in products:
         invalidProduct = False
@@ -120,7 +120,9 @@ def checkProduct(products:list, locks:list):
                 validProducts[-1].append(rotation)
         if invalidProduct:
             validProducts.pop(-1)
-
+        if justGiveTheDamnSolution:
+            if len(validProducts) > 0:
+                return validProducts
     return validProducts
 
 def checkCombination(combination:list, lock:list):
@@ -231,41 +233,34 @@ def main():
         ]
 
     customPicks = [
-        [2,14],
-        [10,12,24],
-        [16,26],
-        [2,18,28],
-        [2,14,18,22],
-        [2,4,12,20],
-        [4,8,22],
-        [10,24],
-        [0,4,26],
-        [6,10,26],
-        [4,20,26],
-        [4,6,18]
+        [2,14,18],
+        [2,28],
+        [0,2],
+        [0,4],
+        [2,6,20],
+        [0,10,28],
+        [0,8,16],
+        [0],
+        [0,6,10,16],
+        [0],
+        [4,26],
+        [6,20,26,28]
     ]
 
     customLocks = [
-        [2,4,14,18,22,24],
-        [2,4,12,16,30],
-        [4,6,12,16,18,20,28],
-        [0,2,6,16,18,22,30]
+        [2,4,8,26],
+        [6,12,16,20,24,26],
+        [10,18,22],
+        [2,6,8,10,12,14,18,24]
     ]
 
     testBench = [[novicePicks, noviceLocks], [advancedPicks, advancedLocks], [expertPicks, expertLocks], [masterPicks, masterLocks]]
     difficulties = ["Novice", "Advanced", "Expert", "Master"]
 
-    print("TestBench Results:")
-    for i, test in enumerate(testBench):
-        t_start = time.time()
-        picks = test[0]
-        locks = test[1]
-        solutions = solve(locks, picks)
-        t_end = time.time()
-        print(f"\tDifficulty: {difficulties[i]}")
-        print(f"\tTime taken: {t_end - t_start} s\n")
+    locks = customLocks
+    picks = customPicks
 
-    printSolution(solutions, locks)
+    printSolution(solve(locks,picks), locks)
         
 
 if __name__ == "__main__":
